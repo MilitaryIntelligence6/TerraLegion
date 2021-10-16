@@ -14,6 +14,9 @@ import com.jmrapp.terralegion.engine.views.screens.ScreenManager;
 import com.jmrapp.terralegion.game.utils.ThreadManager;
 import com.jmrapp.terralegion.game.views.screen.MainScreen;
 
+/**
+ * @author javaman
+ */
 public class PhysicsGame implements ApplicationListener {
 
     protected SpriteBatch sb;
