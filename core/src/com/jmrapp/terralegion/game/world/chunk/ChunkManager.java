@@ -20,13 +20,13 @@ import java.util.Random;
 public class ChunkManager {
 
 	public static int totalChunksLoaded = 0;
-	
+
 	/** The standard size of the tiles */
 	public static int TILE_SIZE = 32;
-	
+
 	/** The world dimensions for the chunks */
 	public static int CHUNKS_X = 36, CHUNKS_Y = 18;
-	
+
 	/** Used to generate hills within a chunk */
 	private static final OreGenerator oreGenerator = new OreGenerator();
 
@@ -34,15 +34,15 @@ public class ChunkManager {
 
 	/** The loaded chunks in the world */
 	private Chunk[][] chunks = new Chunk[CHUNKS_X][CHUNKS_Y];
-	
+
 	/** Holds all chunks located in a radius around the player */
 	private Chunk[][] loadedChunks = new Chunk[3][3];
-	
+
 	private SimplexNoise noise = new SimplexNoise();
 
 	private World world;
 
-	private Random random;
+	private Random random = new Random();
 
 	private int sandRarity = 3;
 
@@ -55,19 +55,17 @@ public class ChunkManager {
 		this.world = world;
 		loadSeed(seed);
 		generateTerrain();
-
-		this.random = new Random();
 	}
-	
+
 	/** Used when loading an existing world. */
 	public ChunkManager(World world) {
 		this.world = world;
 	}
-	
+
 	public void loadSeed(long seed) {
 		noise.genGrad(seed);
 	}
-	
+
 	public void generateTerrain() {
 		for (int y = 0; y < CHUNKS_Y; y++) {
 			for (int x = 0; x < CHUNKS_X; x++) {
@@ -77,7 +75,7 @@ public class ChunkManager {
 			}
 		}
 	}
-	
+
 	private void generateChunk(final Chunk chunk) {
 		// <TODO When running in a thread, for some reason the lighting doesn't generate correctly. Must be some type of race condition>
 		/*Runnable runnable = new Runnable() {
@@ -101,17 +99,17 @@ public class ChunkManager {
 		};
 		ThreadManager.getInstance().runThread(runnable);*/
 	}
-	
+
 	public void updateChunks(PhysicsWorld world, float centerX, float centerY) {
 		if (loadedChunks[1][1] == null || getChunkFromPos(centerX, centerY) != loadedChunks[1][1]) {
 			int tx = pixelToTilePosition(centerX);
 			int ty = pixelToTilePosition(centerY);
-			
+
 			int chunkX = tx / Chunk.CHUNK_SIZE;
 			int chunkY = ty / Chunk.CHUNK_SIZE;
-			
+
 			loadedChunks[1][1] = getAndLoadChunk(chunkX, chunkY);
-			loadedChunks[0][0] = getAndLoadChunk(chunkX - 1, chunkY - 1); //top left			
+			loadedChunks[0][0] = getAndLoadChunk(chunkX - 1, chunkY - 1); //top left
 			loadedChunks[1][0] = getAndLoadChunk(chunkX, chunkY - 1); //top middle
 			loadedChunks[2][0] = getAndLoadChunk(chunkX + 1, chunkY - 1); //top right
 			loadedChunks[0][1] = getAndLoadChunk(chunkX - 1, chunkY); //middle left
@@ -119,11 +117,11 @@ public class ChunkManager {
 			loadedChunks[0][2] = getAndLoadChunk(chunkX - 1, chunkY + 1); //bottom left
 			loadedChunks[1][2] = getAndLoadChunk(chunkX, chunkY + 1); //bottom middle
 			loadedChunks[2][2] = getAndLoadChunk(chunkX + 1, chunkY + 1); //bottom middle
-			
+
 			System.out.println("Changed chunk: " + chunkX + " " + chunkY);
 		}
 	}
-	
+
 	/**
 	 * Gets a chunk given a position but if it is outside the bounds it will return null.
 	 * @param x The chunk x position
@@ -135,7 +133,7 @@ public class ChunkManager {
 			return chunks[x][y];
 		return null;
 	}
-	
+
 	private Chunk getAndLoadChunk(int x, int y) {
 		if (x < CHUNKS_X && x >= 0 && y >= 0 && y < CHUNKS_Y) {
 			Chunk chunk = chunks[x][y];
@@ -257,7 +255,7 @@ public class ChunkManager {
 			}
 		}
 	}
-	
+
 	public boolean damageBlock(float x, float y, float toolPower) {
 		int tx = pixelToTilePosition(x);
 		int ty = pixelToTilePosition(y);
@@ -277,7 +275,7 @@ public class ChunkManager {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Determines whether a specific point is being viewed on the screen. It also accounts for a few of the blocks outside of the viewport.
 	 * @param x The tile X (in pixels)
@@ -292,7 +290,7 @@ public class ChunkManager {
 		float startY = centerY - (Settings.getHeight() / 2);
 		return x >= startX - (TILE_SIZE * 2) && y >= startY - (TILE_SIZE * 2) && x <= startX + Settings.getWidth() + TILE_SIZE && y <= startY + Settings.getHeight() + TILE_SIZE;
 	}
-	
+
 	/**
 	 * Gets a chunk from a tile position (not a pixel position)
 	 * @param x The tile X
@@ -302,7 +300,7 @@ public class ChunkManager {
 	public Chunk getChunkFromTilePos(int x, int y) {
 		return getChunk(x / Chunk.CHUNK_SIZE, y / Chunk.CHUNK_SIZE);
 	}
-	
+
 	/**
 	 * Gets a chunk from a pixel position
 	 * @param x The x position
@@ -436,7 +434,7 @@ public class ChunkManager {
 			return farthestAirFound;
 		}
 	}
-	 
+
 	public double getLightValueFromPos(float x, float y) {
 		int tx = pixelToTilePosition(x);
 		int ty = pixelToTilePosition(y);
@@ -444,7 +442,7 @@ public class ChunkManager {
 		if (chunk != null) {
 			int chunkX = tx - (chunk.getStartX() * Chunk.CHUNK_SIZE);
 			int chunkY = ty - (chunk.getStartY() * Chunk.CHUNK_SIZE);
-			
+
 			if (chunk.isTopChunk()) {
 				int topY = chunk.getHighestTile(chunkX);
 				if (topY < chunkY) {
@@ -455,7 +453,7 @@ public class ChunkManager {
 		}
 		return 1; //Sun light value
 	}
-	
+
 	/**
 	 * Gets the tile position given a vector position
 	 * @param x The x position in pixels
@@ -482,11 +480,11 @@ public class ChunkManager {
 	/*public static Vector2 tileToPixelPosition(int x, int y) {
 		return new Vector2(x * TILE_SIZE, y * TILE_SIZE);
 	}*/
-	
+
 	public void setChunk(Chunk chunk, int x, int y) {
 		chunks[x][y] = chunk;
 	}
-	
+
 	public BlockType getBlockFromTilePos(int x, int y) {
 		Chunk chunk = getChunkFromTilePos(x, y);
 		if (chunk != null) {
@@ -496,15 +494,15 @@ public class ChunkManager {
 		}
 		return null;
 	}
-	
+
 	public BlockType getBlockFromPos(float x, float y) {
 		return getBlockFromTilePos(pixelToTilePosition(x), pixelToTilePosition(y));
 	}
-	
+
 	public Chunk[][] getLoadedChunks() {
 		return loadedChunks;
 	}
-	
+
 	public void setBlock(BlockType type, float x, float y, boolean callEvents) {
 		int tx = pixelToTilePosition(x);
 		int ty = pixelToTilePosition(y);
@@ -519,7 +517,7 @@ public class ChunkManager {
 			chunk.setBlock(type, tx - xOffset, ty - yOffset, callEvents);
 		}
 	}
-	
+
 	public Chunk[][] getChunks() {
 		return chunks;
 	}
@@ -527,5 +525,5 @@ public class ChunkManager {
 	public World getWorld() {
 		return world;
 	}
-	
+
 }
