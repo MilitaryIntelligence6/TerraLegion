@@ -1,0 +1,29 @@
+language: android
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-24.0.1
+    - android-20
+jdk: oraclejdk8
+
+cache:
+  directories:
+  - $HOME/.gradle/wrapper
+  - $HOME/.gradle/caches/modules-2/files-2.1
+
+before_install:
+- chmod +x gradlew
+- chmod +x ./ci/*
+script:
+- ./ci/build_desktop.sh
+- ./ci/build_android.sh
+
+script:
+  - "./gradlew build -PversionCode=$TRAVIS_BUILD_NUMBER"
+before_deploy:
+- ./ci/deploy_desktop.sh
+- ./ci/deploy_android.sh
+  
+notifications:
+  email: false
