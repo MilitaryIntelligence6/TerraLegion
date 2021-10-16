@@ -52,6 +52,10 @@ public class ChunkManager {
 
     private World world;
 
+    /**
+     * @date 2021-10-16
+     * 移动到声明字段, 修复空指针异常;
+     */
     private Random random = new Random();
 
     private int sandRarity = 3;
