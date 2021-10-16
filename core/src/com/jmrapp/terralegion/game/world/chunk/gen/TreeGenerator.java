@@ -13,7 +13,7 @@ public class TreeGenerator {
         int randomNum1 = getRandomNumber(1, 4);
         int leavesLength;
         int stemLength;
-        switch(randomNum1) {
+        switch (randomNum1) {
             case 2:
                 stemLength = 4;
                 leavesLength = getRandomNumber(1, 3);
@@ -32,18 +32,18 @@ public class TreeGenerator {
                 break;
         }
         // add stem
-        for(int i = 0; i < stemLength; i++) {
-            chunk.setBlock(BlockType.WOOD, x, y+i, false);
+        for (int i = 0; i < stemLength; i++) {
+            chunk.setBlock(BlockType.WOOD, x, y + i, false);
         }
         // add leaves
-        for(int i = 1; i <= leavesLength; i++) {
-            chunk.setBlock(BlockType.LEAVES, x-1, y+stemLength-i, false);
-            chunk.setBlock(BlockType.LEAVES, x+1, y+stemLength-i, false);
+        for (int i = 1; i <= leavesLength; i++) {
+            chunk.setBlock(BlockType.LEAVES, x - 1, y + stemLength - i, false);
+            chunk.setBlock(BlockType.LEAVES, x + 1, y + stemLength - i, false);
         }
-        chunk.setBlock(BlockType.APPLE_LEAVES, x, y+stemLength, false);
+        chunk.setBlock(BlockType.APPLE_LEAVES, x, y + stemLength, false);
 
-        if(getRandomNumber(1, 5) == 4){
-            chunk.setBlock(MUSHROOMS[getRandomNumber(0, MUSHROOMS.length-1)], x, y+stemLength + 1, false);
+        if (getRandomNumber(1, 5) == 4) {
+            chunk.setBlock(MUSHROOMS[getRandomNumber(0, MUSHROOMS.length - 1)], x, y + stemLength + 1, false);
         }
     }
 

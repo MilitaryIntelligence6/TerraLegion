@@ -49,7 +49,8 @@ public class GameHud {
     private Texture bg;
 
     private InventoryBox[] inventoryBoxes = new InventoryBox[5];
-    private PictureButton inventoryBtn = new PictureButton(ResourceManager.getInstance().getDrawable("inventoryBtn"), 20 + (InventoryBox.bg.getWidth() + 7) * 5, Settings.getHeight() - InventoryBox.bg.getHeight() - 10);
+    private PictureButton inventoryBtn = new PictureButton(ResourceManager.getInstance().getDrawable("inventoryBtn"),
+            20 + (InventoryBox.bg.getWidth() + 7) * 5, Settings.getHeight() - InventoryBox.bg.getHeight() - 10);
 
     private float lastBlockPlace;
     private Vector2 highlightedBlockPosition = Vector2Factory.instance.getVector2();
@@ -63,8 +64,10 @@ public class GameHud {
         stageSb = new SpriteBatch();
         sb = new SpriteBatch();
         stage = new Stage(new StretchViewport(Settings.getWidth(), Settings.getHeight()), stageSb);
-        moveControl = new JoystickControl(ResourceManager.getInstance().getTexture("joystickBg"), ResourceManager.getInstance().getTexture("joystickKnob"), 10, 20, 20, 200, 200);
-        actionControl = new JoystickControl(ResourceManager.getInstance().getTexture("joystickBg"), ResourceManager.getInstance().getTexture("joystickKnob"), 10, 550, 20, 200, 200);
+        moveControl = new JoystickControl(ResourceManager.getInstance().getTexture("joystickBg"),
+                ResourceManager.getInstance().getTexture("joystickKnob"), 10, 20, 20, 200, 200);
+        actionControl = new JoystickControl(ResourceManager.getInstance().getTexture("joystickBg"),
+                ResourceManager.getInstance().getTexture("joystickKnob"), 10, 550, 20, 200, 200);
         stage.addActor(moveControl.getTouchpad());
         stage.addActor(actionControl.getTouchpad());
         stage.act(Gdx.graphics.getDeltaTime());
@@ -75,7 +78,9 @@ public class GameHud {
         bg = ResourceManager.getInstance().getTexture("bg");
 
         for (int i = 0; i < inventoryBoxes.length; i++) {
-            inventoryBoxes[i] = new InventoryBox(world.getPlayer().getInventory().getItemStack(i, 0), 20 + (i * (InventoryBox.bg.getWidth() + 7)), Settings.getHeight() - InventoryBox.bg.getHeight() - 10);
+            inventoryBoxes[i] = new InventoryBox(world.getPlayer().getInventory().getItemStack(i, 0),
+                    20 + (i * (InventoryBox.bg.getWidth() + 7)),
+                    Settings.getHeight() - InventoryBox.bg.getHeight() - 10);
         }
         inventoryBoxes[0].setSelected(true);
     }
@@ -90,15 +95,18 @@ public class GameHud {
         }
 
         if (moveControl.getTouchpad().isTouched()) {
-            if (moveControl.getTouchpad().getKnobPercentY() > .5f && world.getPlayer().canJump())
+            if (moveControl.getTouchpad().getKnobPercentY() > .5f && world.getPlayer().canJump()) {
                 world.getPlayer().jump();
-            world.getPlayer().addVelocity(moveControl.getTouchpad().getKnobPercentX() * world.getPlayer().getSpeed(), 0);
+            }
+            world.getPlayer().addVelocity(moveControl.getTouchpad().getKnobPercentX() * world.getPlayer().getSpeed(),
+                    0);
         } else if (actionControl.getTouchpad().isTouched()) {
             ItemStack selectedItemStack = getSelectedItemStack();
             if (selectedItemStack != null) {
                 if (selectedItemStack.getItem() instanceof ToolItem) {
                     if (selectedItemStack.getItem() instanceof CombatItem) {
-                        LivingEntity entity = findLivingEntity((ToolItem) selectedItemStack.getItem()); //look for entities we can attack
+                        LivingEntity entity = findLivingEntity((ToolItem) selectedItemStack.getItem()); //look for
+                        // entities we can attack
                         if (entity != null) { //if we found an entity to attack, attack it
                             entity.damage(((CombatItem) selectedItemStack.getItem()).getDamage());
                             world.getPlayer().usedTool();
@@ -135,11 +143,11 @@ public class GameHud {
             Vector2 position = Vector2Factory.instance.getVector2(touchX, touchY);
 
             if (selectedItemStack != null) {
-                if(selectedItemStack.getItem() instanceof UsableItem){
+                if (selectedItemStack.getItem() instanceof UsableItem) {
                     UsableItem item = ((UsableItem) selectedItemStack.getItem());
 
-                    if(new Vector2(touchX, touchY).dst(world.getPlayer().getX(), world.getPlayer().getY()) <= item.getReach()){
-                        if(item.onUse(world, touchX, touchY)) {
+                    if (new Vector2(touchX, touchY).dst(world.getPlayer().getX(), world.getPlayer().getY()) <= item.getReach()) {
+                        if (item.onUse(world, touchX, touchY)) {
                             highlightedBlockPosition.set(((int) touchX / ChunkManager.TILE_SIZE) * ChunkManager.TILE_SIZE, ((int) touchY / ChunkManager.TILE_SIZE) * ChunkManager.TILE_SIZE);
                         }
                     }
@@ -151,11 +159,12 @@ public class GameHud {
                     if (position.dst(origin) <= 100) {
                         BlockType type = world.getChunkManager().getBlockFromPos(touchX, touchY);
                         if (type == BlockType.AIR) {
-                            if(world.getChunkManager().getChunkFromPos(touchX, touchY).findLivingEntitiesInRange(touchX, touchY, ChunkManager.TILE_SIZE).size == 0) {
+                            if (world.getChunkManager().getChunkFromPos(touchX, touchY).findLivingEntitiesInRange(touchX, touchY, ChunkManager.TILE_SIZE).size == 0) {
                                 highlightedBlockPosition.set(((int) touchX / ChunkManager.TILE_SIZE) * ChunkManager.TILE_SIZE, ((int) touchY / ChunkManager.TILE_SIZE) * ChunkManager.TILE_SIZE);
                                 if (Timer.getGameTimeElapsed() - lastBlockPlace > .75f) {
                                     if (world.getChunkManager().getBlockFromPos(touchX, touchY) == BlockType.AIR) {
-                                        collisionTestRect.set(highlightedBlockPosition.x, highlightedBlockPosition.y, ChunkManager.TILE_SIZE, ChunkManager.TILE_SIZE);
+                                        collisionTestRect.set(highlightedBlockPosition.x, highlightedBlockPosition.y,
+                                                ChunkManager.TILE_SIZE, ChunkManager.TILE_SIZE);
                                         if (!world.getPlayer().getBounds().overlaps(collisionTestRect) || !BlockManager.getBlock(((BlockItem) selectedItemStack.getItem()).getBlockType()).collides()) {
                                             world.getChunkManager().setBlock(((BlockItem) selectedItemStack.getItem()).getBlockType(), touchX, touchY, true);
                                             world.getPlayer().getInventory().removeItemStack(selectedItemStack.getItem(), 1);
@@ -175,21 +184,23 @@ public class GameHud {
     }
 
     public void render(OrthoCamera gameCamera) {
-        if (highlightedBlockPosition.x != -100 && highlightedBlockPosition.y != -100) { //means we are highlighting a block and trying to break it
+        if (highlightedBlockPosition.x != -100 && highlightedBlockPosition.y != -100) { //means we are highlighting a
+            // block and trying to break it
             sb.setProjectionMatrix(gameCamera.combined);
             sb.begin();
             blankTile.render(sb, highlightedBlockPosition.x, highlightedBlockPosition.y);
             sb.end();
 
-            if(Gdx.input.isTouched()){
-                for(InventoryBox inventoryBox : inventoryBoxes){
-                    if(inventoryBox.isSelected() && !(inventoryBox.getItemStack() == null)) {
+            if (Gdx.input.isTouched()) {
+                for (InventoryBox inventoryBox : inventoryBoxes) {
+                    if (inventoryBox.isSelected() && !(inventoryBox.getItemStack() == null)) {
                         Vector2 touchPosition = gameCamera.unprojectCoordinates(Gdx.input.getX(), Gdx.input.getY());
 
                         Drawable icon = inventoryBox.getItemStack().getItem().getIcon();
 
                         sb.begin();
-                        icon.render(sb, touchPosition.x + icon.getWidth() * 1.5f, touchPosition.y); //drawn slightly to the side to avoid your finger overlapping the icon
+                        icon.render(sb, touchPosition.x + icon.getWidth() * 1.5f, touchPosition.y); //drawn slightly
+                        // to the side to avoid your finger overlapping the icon
                         sb.end();
                     }
                 }
@@ -199,19 +210,24 @@ public class GameHud {
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
 
-        ResourceManager.getInstance().getFont("font").draw(sb, "FPS: " + Gdx.graphics.getFramesPerSecond(), Settings.getWidth() - 150, Settings.getHeight() - 60);
+        ResourceManager.getInstance().getFont("font").draw(sb, "FPS: " + Gdx.graphics.getFramesPerSecond(),
+                Settings.getWidth() - 150, Settings.getHeight() - 60);
         Chunk chunk = world.getChunkManager().getLoadedChunks()[1][1];
         if (chunk != null) {
-            ResourceManager.getInstance().getFont("font").draw(sb, "Chunk: " + chunk.getStartX() + ", " + chunk.getStartY(), Settings.getWidth() - 150, Settings.getHeight() - 80);
+            ResourceManager.getInstance().getFont("font").draw(sb,
+                    "Chunk: " + chunk.getStartX() + ", " + chunk.getStartY(), Settings.getWidth() - 150,
+                    Settings.getHeight() - 80);
         }
 
         int hearts = (int) world.getPlayer().getHealth() / 20;
         for (int i = 0; i < hearts; i++) {
-            sb.draw(heartTexture, Settings.getWidth() - 75 - (i * (heartTexture.getWidth() + 5)), Settings.getHeight() - heartTexture.getHeight() - 15);
+            sb.draw(heartTexture, Settings.getWidth() - 75 - (i * (heartTexture.getWidth() + 5)),
+                    Settings.getHeight() - heartTexture.getHeight() - 15);
         }
 
-        for (InventoryBox box : inventoryBoxes)
+        for (InventoryBox box : inventoryBoxes) {
             box.render(sb);
+        }
 
         inventoryBtn.render(sb);
 
@@ -233,11 +249,13 @@ public class GameHud {
     private LivingEntity findLivingEntity(ToolItem item) {
         if (world.getPlayer().canUseItem(item)) {
 
-            Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(), actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
+            Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(),
+                    actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
             Chunk chunk = world.getChunkManager().getChunkFromPos(world.getPlayer().getX(), world.getPlayer().getY());
 
             //The entities found array is sorted by distance to player from least to greatest
-            for (LivingEntity entity : chunk.findLivingEntitiesInRange(world.getPlayer().getX(), world.getPlayer().getY(), item.getReach())) {
+            for (LivingEntity entity : chunk.findLivingEntitiesInRange(world.getPlayer().getX(),
+                    world.getPlayer().getY(), item.getReach())) {
                 if (direction.x < 0) {
                     if (entity.getX() < world.getPlayer().getX()) {
                         return entity;
@@ -253,8 +271,11 @@ public class GameHud {
     }
 
     private void breakBlock(ToolItem tool) {
-        Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(), actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
-        Vector2 foundBlockPos = world.getChunkManager().findBlock(tool, world.getPlayer().getX() + ChunkManager.TILE_SIZE / 2, world.getPlayer().getY() + ChunkManager.TILE_SIZE / 2, direction, tool.getReach()); //Find a block
+        Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(),
+                actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
+        Vector2 foundBlockPos = world.getChunkManager().findBlock(tool,
+                world.getPlayer().getX() + ChunkManager.TILE_SIZE / 2,
+                world.getPlayer().getY() + ChunkManager.TILE_SIZE / 2, direction, tool.getReach()); //Find a block
         if (direction.x != 0 && direction.y != 0) {
             if (foundBlockPos != null) {
                 float px = ChunkManager.tileToPixelPosition((int) foundBlockPos.x);
@@ -263,7 +284,8 @@ public class GameHud {
             }
             if (world.getPlayer().canUseItem(tool)) {
                 if (foundBlockPos != null) { //if block found within reach
-                    if (world.getChunkManager().damageBlock((int) foundBlockPos.x, (int) foundBlockPos.y, tool.getPower())) { //Damage the block
+                    if (world.getChunkManager().damageBlock((int) foundBlockPos.x, (int) foundBlockPos.y,
+                            tool.getPower())) { //Damage the block
                         world.getPlayer().usedTool();
                     }
                 }
@@ -274,8 +296,11 @@ public class GameHud {
     }
 
     private void placeBlock(BlockItem block) {
-        Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(), actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
-        Vector2 foundBlockPos = world.getChunkManager().findFarthestAirBlock(world.getPlayer().getX() + ChunkManager.TILE_SIZE / 2, world.getPlayer().getY() + ChunkManager.TILE_SIZE / 2, direction, 100); //Find an air block
+        Vector2 direction = Vector2Factory.instance.getVector2(actionControl.getTouchpad().getKnobPercentX(),
+                actionControl.getTouchpad().getKnobPercentY()).nor(); //Get vector direction of the know
+        Vector2 foundBlockPos =
+                world.getChunkManager().findFarthestAirBlock(world.getPlayer().getX() + ChunkManager.TILE_SIZE / 2,
+                        world.getPlayer().getY() + ChunkManager.TILE_SIZE / 2, direction, 100); //Find an air block
 
         if (direction.x != 0 && direction.y != 0) {
             if (foundBlockPos != null) { //if we found an air block
@@ -285,9 +310,11 @@ public class GameHud {
             }
             if (foundBlockPos != null) { //if block found within reach
                 if (Timer.getGameTimeElapsed() - lastBlockPlace > .75f) {
-                    collisionTestRect.set(highlightedBlockPosition.x, highlightedBlockPosition.y, ChunkManager.TILE_SIZE, ChunkManager.TILE_SIZE);
+                    collisionTestRect.set(highlightedBlockPosition.x, highlightedBlockPosition.y,
+                            ChunkManager.TILE_SIZE, ChunkManager.TILE_SIZE);
                     if (!world.getPlayer().getBounds().overlaps(collisionTestRect)) {
-                        world.getChunkManager().setBlock(block.getBlockType(), (int) foundBlockPos.x, (int) foundBlockPos.y, true);
+                        world.getChunkManager().setBlock(block.getBlockType(), (int) foundBlockPos.x,
+                                (int) foundBlockPos.y, true);
                         world.getPlayer().getInventory().removeItemStack(block, 1);
                         lastBlockPlace = Timer.getGameTimeElapsed();
                     }

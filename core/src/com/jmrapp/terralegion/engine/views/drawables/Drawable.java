@@ -6,22 +6,22 @@ import com.badlogic.gdx.math.Vector2;
 
 public interface Drawable {
 
-	void update();
-	
-	void render(SpriteBatch sb, Vector2 pos);
+    void update();
 
-	void render(SpriteBatch sb, float x, float y);
+    void render(SpriteBatch sb, Vector2 pos);
 
-	TextureRegion getTextureRegion();
+    void render(SpriteBatch sb, float x, float y);
 
-	Drawable getInstance();
-	
-	float getWidth();
-	
-	float getHeight();
-	
-	Object getRaw();
-	
+    TextureRegion getTextureRegion();
+
+    Drawable getInstance();
+
+    float getWidth();
+
+    float getHeight();
+
+    Object getRaw();
+
 }
 
 

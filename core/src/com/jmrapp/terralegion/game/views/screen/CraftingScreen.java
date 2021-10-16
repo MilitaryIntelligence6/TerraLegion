@@ -30,8 +30,8 @@ import com.jmrapp.terralegion.game.item.ItemStack;
 import com.jmrapp.terralegion.game.item.crafting.CraftingRecipe;
 import com.jmrapp.terralegion.game.item.crafting.CraftingRecipes;
 import com.jmrapp.terralegion.game.item.inventory.Inventory;
-import com.jmrapp.terralegion.game.views.ui.ItemBox;
 import com.jmrapp.terralegion.game.utils.CachePool;
+import com.jmrapp.terralegion.game.views.ui.ItemBox;
 import com.jmrapp.terralegion.game.world.World;
 
 
@@ -40,309 +40,322 @@ import com.jmrapp.terralegion.game.world.World;
  */
 public class CraftingScreen implements Screen {
 
-	private static final int MAX_TABLE_WIDTH = 5;
+    private static final int MAX_TABLE_WIDTH = 5;
 
-	private static final Texture bg = ResourceManager.getInstance().getTexture("craftingBg");
-	private static final TextureRegionDrawable inventoryBoxDrawable = new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture("inventoryBox")));
-	private static final TextureRegionDrawable inventorySelectedBoxDrawable = new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture("selectedInventoryBox")));
+    private static final Texture bg = ResourceManager.getInstance().getTexture("craftingBg");
+    private static final TextureRegionDrawable inventoryBoxDrawable =
+            new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture("inventoryBox")));
+    private static final TextureRegionDrawable inventorySelectedBoxDrawable =
+            new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture(
+                    "selectedInventoryBox")));
+    private static final Array<Table> usedTablesCache = new Array<Table>();
+    private static final Array<Group> usedGroupsCache = new Array<Group>();
+    private static final Array<InventoryDragListener> dragListenersCache =
+            new Array<InventoryDragListener>(InventoryDragListener.class);
+    private static final Array<InventoryDragListener> usedDragListenersCache = new Array<InventoryDragListener>();
+    private final World world;
+    private final Inventory inventory;
+    private final Screen gameScreen;
+    private CategoryButton toolCategoryBtn = new CategoryButton(ItemCategory.TOOL,
+            ResourceManager.getInstance().getTexture("unselectedToolCategoryBtn"),
+            ResourceManager.getInstance().getTexture("selectedToolCategoryBtn"), 30, Settings.getHeight() - 120);
+    private CategoryButton furnitureCategoryBtn = new CategoryButton(ItemCategory.FURNITURE,
+            ResourceManager.getInstance().getTexture("unselectedToolCategoryBtn"),
+            ResourceManager.getInstance().getTexture("selectedToolCategoryBtn"), 30, Settings.getHeight() - 170);
+    private Stage stage;
+    private SpriteBatch stageSb;
+    private OrthoCamera camera;
+    private ItemBox selectedInventoryBox;
+    private Label itemNameLabel;
+    private MultilineLabel itemInfoLabel;
+    private Table craftingTable;
+    private ScrollPane pane;
 
-	private CategoryButton toolCategoryBtn = new CategoryButton(ItemCategory.TOOL, ResourceManager.getInstance().getTexture("unselectedToolCategoryBtn"), ResourceManager.getInstance().getTexture("selectedToolCategoryBtn"), 30, Settings.getHeight() - 120);
-	private CategoryButton furnitureCategoryBtn = new CategoryButton(ItemCategory.FURNITURE, ResourceManager.getInstance().getTexture("unselectedToolCategoryBtn"), ResourceManager.getInstance().getTexture("selectedToolCategoryBtn"), 30, Settings.getHeight() - 170);
+    private ItemCategory currentCategory;
+    private CraftingRecipe selectedRecipe;
 
-	private static final Array<Table> usedTablesCache = new Array<Table>();
-	private static final Array<Group> usedGroupsCache = new Array<Group>();
+    private PictureButton cancelBtn = new PictureButton(ResourceManager.getInstance().getDrawable("cancelBtn"),
+            Settings.getWidth() - ResourceManager.getInstance().getDrawable("cancelBtn").getWidth() - 15,
+            Settings.getHeight() - 61 + 10);
+    private PictureButton craftingBtn = new PictureButton(ResourceManager.getInstance().getDrawable(
+            "selectedCraftingBtn"), 30, Settings.getHeight() - 61 + 10);
+    private PictureButton invBtn = new PictureButton(ResourceManager.getInstance().getDrawable("unselectedInvBtn"),
+            (Settings.getWidth() / 2) - 25, Settings.getHeight() - 61 + 10);
+    private PictureButton craftBtn = new PictureButton(ResourceManager.getInstance().getDrawable("craftBtn"),
+            Settings.getWidth() - 200, 25);
 
-	private static final Array<InventoryDragListener> dragListenersCache = new Array<InventoryDragListener>(InventoryDragListener.class);
-	private static final Array<InventoryDragListener> usedDragListenersCache = new Array<InventoryDragListener>();
+    public CraftingScreen(Screen gameScreen, World world, Inventory inventory) {
+        this.gameScreen = gameScreen;
+        this.world = world;
+        this.inventory = inventory;
+    }
 
-	private Stage stage;
-	private SpriteBatch stageSb;
+    @Override
+    public void create() {
+        camera = new OrthoCamera();
+        camera.resize();
 
-	private OrthoCamera camera;
-	private final World world;
-	private final Inventory inventory;
-	private final Screen gameScreen;
+        stageSb = new SpriteBatch();
+        stage = new Stage(new StretchViewport(Settings.getWidth(), Settings.getHeight()), stageSb);
 
-	private ItemBox selectedInventoryBox;
-	private Label itemNameLabel;
-	private MultilineLabel itemInfoLabel;
-	private Table craftingTable;
-	private ScrollPane pane;
+        //CATEGORY BUTTONS
+        stage.addActor(toolCategoryBtn.getImageButton());
+        stage.addActor(furnitureCategoryBtn.getImageButton());
 
-	private ItemCategory currentCategory;
-	private CraftingRecipe selectedRecipe;
+        ScrollPane.ScrollPaneStyle paneStyle = new ScrollPane.ScrollPaneStyle();
+        paneStyle.background = new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture(
+                "invStageBg")));
+        //paneStyle.vScrollKnob = new TextureRegionDrawable();
+        //paneStyle.hScroll = paneStyle.hScrollKnob = paneStyle.vScroll = paneStyle.vScrollKnob;
 
-	private PictureButton cancelBtn = new PictureButton(ResourceManager.getInstance().getDrawable("cancelBtn"), Settings.getWidth() - ResourceManager.getInstance().getDrawable("cancelBtn").getWidth() - 15, Settings.getHeight() - 61 + 10);
-	private PictureButton craftingBtn = new PictureButton(ResourceManager.getInstance().getDrawable("selectedCraftingBtn"), 30, Settings.getHeight() - 61 + 10);
-	private PictureButton invBtn = new PictureButton(ResourceManager.getInstance().getDrawable("unselectedInvBtn"), (Settings.getWidth() / 2) - 25, Settings.getHeight() - 61 + 10);
-	private PictureButton craftBtn = new PictureButton(ResourceManager.getInstance().getDrawable("craftBtn"), Settings.getWidth() - 200, 25);
+        Table craftingContainer = CachePool.getTable();
+        usedTablesCache.add(craftingContainer);
+        float startX = (Settings.getWidth() / 2) - 255;
+        craftingContainer.setBounds(startX, 0, 370, Settings.getHeight() - 61);
 
-	public CraftingScreen(Screen gameScreen, World world, Inventory inventory) {
-		this.gameScreen = gameScreen;
-		this.world = world;
-		this.inventory = inventory;
-	}
+        craftingTable = CachePool.getTable();
+        stage.addListener(new CraftingButtonClickListener(stage, craftingTable, craftingContainer.getX(),
+                craftingContainer.getY()));
+        usedTablesCache.add(craftingTable);
 
-	@Override
-	public void create() {
-		camera = new OrthoCamera();
-		camera.resize();
+        pane = new ScrollPane(craftingTable, paneStyle);
+        craftingContainer.add(pane).width(370).height(Settings.getHeight() - 61);
+        craftingContainer.row();
+        stage.addActor(craftingContainer);
 
-		stageSb = new SpriteBatch();
-		stage = new Stage(new StretchViewport(Settings.getWidth(), Settings.getHeight()), stageSb);
+        itemNameLabel = new Label("", ResourceManager.getInstance().getFont("font"), startX + 370 + 10,
+                Settings.getHeight() - 61 - 35, false);
+        itemInfoLabel = new MultilineLabel("", ResourceManager.getInstance().getFont("font"), startX + 370 + 10,
+                Settings.getHeight() - 61 - 85, false);
 
-		//CATEGORY BUTTONS
-		stage.addActor(toolCategoryBtn.getImageButton());
-		stage.addActor(furnitureCategoryBtn.getImageButton());
+        populateCraftableItems(toolCategoryBtn.getCategory());
 
-		ScrollPane.ScrollPaneStyle paneStyle = new ScrollPane.ScrollPaneStyle();
-		paneStyle.background = new TextureRegionDrawable(new TextureRegion(ResourceManager.getInstance().getTexture("invStageBg")));
-		//paneStyle.vScrollKnob = new TextureRegionDrawable();
-		//paneStyle.hScroll = paneStyle.hScrollKnob = paneStyle.vScroll = paneStyle.vScrollKnob;
+        InputController.getInstance().addInputProcessor(stage);
+    }
 
-		Table craftingContainer = CachePool.getTable();
-		usedTablesCache.add(craftingContainer);
-		float startX = (Settings.getWidth() / 2) - 255;
-		craftingContainer.setBounds(startX, 0, 370, Settings.getHeight() - 61);
+    @Override
+    public void update() {
+        camera.update();
+        stage.act(Gdx.graphics.getDeltaTime());
 
-		craftingTable = CachePool.getTable();
-		stage.addListener(new CraftingButtonClickListener(stage, craftingTable, craftingContainer.getX(), craftingContainer.getY()));
-		usedTablesCache.add(craftingTable);
+        if (Gdx.input.justTouched()) {
+            float touchX = camera.unprojectXCoordinate(Gdx.input.getX(), Gdx.input.getY());
+            float touchY = camera.unprojectYCoordinate(Gdx.input.getX(), Gdx.input.getY());
+            if (cancelBtn.isPressed(touchX, touchY)) {
+                ScreenManager.setScreen(gameScreen);
+            } else if (invBtn.isPressed(touchX, touchY)) {
+                ScreenManager.setScreen(new InventoryScreen(gameScreen, world, inventory));
+            } else if (selectedRecipe != null && craftBtn.isPressed(touchX, touchY)) {
+                // check if user can craft the selected item/block
+                if (selectedRecipe.canCraft(inventory)) {
+                    // give the player the crafted item/block
+                    inventory.addItemStack(selectedRecipe.craft(inventory)); // also removes required items
+                    updateSelectedRecipeInfo();
+                }
+            }
+        }
+    }
 
-		pane = new ScrollPane(craftingTable, paneStyle);
-		craftingContainer.add(pane).width(370).height(Settings.getHeight() - 61);
-		craftingContainer.row();
-		stage.addActor(craftingContainer);
+    @Override
+    public void render(SpriteBatch sb) {
+        sb.setProjectionMatrix(camera.combined);
+        sb.begin();
+        sb.draw(bg, 0, 0);
+        itemNameLabel.render(sb);
+        itemInfoLabel.render(sb);
+        cancelBtn.render(sb);
+        craftingBtn.render(sb);
+        invBtn.render(sb);
+        if (selectedRecipe != null) {
+            craftBtn.render(sb);
+        }
+        sb.end();
 
-		itemNameLabel = new Label("", ResourceManager.getInstance().getFont("font"), startX + 370 + 10, Settings.getHeight() - 61 - 35, false);
-		itemInfoLabel = new MultilineLabel("", ResourceManager.getInstance().getFont("font"), startX + 370 + 10, Settings.getHeight() - 61 - 85, false);
+        stage.draw();
+    }
 
-		populateCraftableItems(toolCategoryBtn.getCategory());
+    @Override
+    public void dispose() {
+        InputController.getInstance().removeInputProcessor(stage);
+        stage.dispose();
 
-		InputController.getInstance().addInputProcessor(stage);
-	}
+        for (int i = 0; i < usedTablesCache.size;
+             i++) { //Manage the tables so we don't over use them each time we open the inventory screen
+            CachePool.addTable(usedTablesCache.get(i));
+        }
+        usedTablesCache.clear();
 
-	@Override
-	public void update() {
-		camera.update();
-		stage.act(Gdx.graphics.getDeltaTime());
+        for (int i = 0; i < usedGroupsCache.size; i++) {
+            CachePool.addGroup(usedGroupsCache.get(i));
+        }
+        usedGroupsCache.clear();
 
-		if (Gdx.input.justTouched()) {
-			float touchX = camera.unprojectXCoordinate(Gdx.input.getX(), Gdx.input.getY());
-			float touchY = camera.unprojectYCoordinate(Gdx.input.getX(), Gdx.input.getY());
-			if (cancelBtn.isPressed(touchX, touchY)) {
-				ScreenManager.setScreen(gameScreen);
-			} else if (invBtn.isPressed(touchX, touchY)) {
-				ScreenManager.setScreen(new InventoryScreen(gameScreen, world, inventory));
-			} else if (selectedRecipe != null && craftBtn.isPressed(touchX, touchY)) {
-				// check if user can craft the selected item/block
-				if(selectedRecipe.canCraft(inventory)) {
-					// give the player the crafted item/block
-					inventory.addItemStack(selectedRecipe.craft(inventory)); // also removes required items
-					updateSelectedRecipeInfo();
-				}
-			}
-		}
-	}
+        for (int i = 0; i < usedDragListenersCache.size; i++) {
+            dragListenersCache.add(usedDragListenersCache.get(i));
+        }
+        dragListenersCache.clear();
+    }
 
-	@Override
-	public void render(SpriteBatch sb) {
-		sb.setProjectionMatrix(camera.combined);
-		sb.begin();
-		sb.draw(bg, 0, 0);
-		itemNameLabel.render(sb);
-		itemInfoLabel.render(sb);
-		cancelBtn.render(sb);
-		craftingBtn.render(sb);
-		invBtn.render(sb);
-		if (selectedRecipe != null)
-			craftBtn.render(sb);
-		sb.end();
+    @Override
+    public void resize(int width, int height) {
+        camera.resize();
+    }
 
-		stage.draw();
-	}
+    @Override
+    public void onBackPressed() {
+        ScreenManager.goBack();
+    }
 
-	@Override
-	public void dispose() {
-		InputController.getInstance().removeInputProcessor(stage);
-		stage.dispose();
+    @Override
+    public void pause() {
 
-		for (int i = 0; i < usedTablesCache.size; i++) { //Manage the tables so we don't over use them each time we open the inventory screen
-			CachePool.addTable(usedTablesCache.get(i));
-		}
-		usedTablesCache.clear();
+    }
 
-		for (int i = 0; i < usedGroupsCache.size; i++) {
-			CachePool.addGroup(usedGroupsCache.get(i));
-		}
-		usedGroupsCache.clear();
+    @Override
+    public void resume() {
+        InputController.getInstance().addInputProcessor(stage);
+    }
 
-		for (int i = 0; i < usedDragListenersCache.size; i++) {
-			dragListenersCache.add(usedDragListenersCache.get(i));
-		}
-		dragListenersCache.clear();
-	}
+    private void populateCraftableItems(ItemCategory category) {
+        craftingTable.clear();
+        currentCategory = category;
+        itemNameLabel.setText("");
+        itemInfoLabel.setText("");
 
-	@Override
-	public void resize(int width, int height) {
-		camera.resize();
-	}
+        Array<CraftingRecipe> recipes = CraftingRecipes.getInstance().getCraftableItems(category);
 
-	@Override
-	public void onBackPressed() {
-		ScreenManager.goBack();
-	}
+        int y = 0;
+        for (int i = 0; i < recipes.size; i++) {
+            ItemStack stack = recipes.get(i).getCraftedItemStack();
+            ItemBox box = new ItemBox(stack, String.valueOf(i));
+            Cell<Table> cell = craftingTable.add((Table) box).width(60).height(60).padRight(10).padBottom(10);
+            if (i % MAX_TABLE_WIDTH == 0) {
+                cell.padLeft(10);
+            }
+            if (y == 0) {
+                cell.padTop(10);
+            }
+            if ((i + 1) % MAX_TABLE_WIDTH == 0) {
+                craftingTable.row();
+                y++;
+            }
+        }
+    }
 
-	@Override
-	public void pause() {
+    private void updateSelectedRecipeInfo() {
+        ItemStack itemStack = selectedRecipe.getCraftedItemStack();
+        if (itemStack != null) {
+            itemNameLabel.setText(itemStack.getItem().getName());
+            String text = "";
+            for (ItemStack stack : selectedRecipe.getRequiredItems()) {
+                text += stack.getItem().getName() + "(" + inventory.getTotalCount(stack.getItem()) + "/" + stack.getStack() + ")\n";
+            }
+            itemInfoLabel.setText(text);
+        }
+    }
 
-	}
+    private class CraftingButtonClickListener extends ClickListener {
 
-	@Override
-	public void resume() {
-		InputController.getInstance().addInputProcessor(stage);
-	}
+        private Stage stage;
+        private Table craftingHolder;
+        private float tableOffsetX, tableOffsetY;
 
-	private void populateCraftableItems(ItemCategory category) {
-		craftingTable.clear();
-		currentCategory = category;
-		itemNameLabel.setText("");
-		itemInfoLabel.setText("");
+        public CraftingButtonClickListener(Stage stage, Table craftingHolder, float tableOffsetX, float tableOffsetY) {
+            this.stage = stage;
+            this.craftingHolder = craftingHolder;
+            this.tableOffsetX = tableOffsetX;
+            this.tableOffsetY = tableOffsetY;
+        }
 
-		Array<CraftingRecipe> recipes = CraftingRecipes.getInstance().getCraftableItems(category);
+        @Override
+        public void clicked(InputEvent event, float xClick, float yClick) {
+            for (Actor actor : stage.getActors()) {
+                if (actor instanceof ImageButton) {
+                    ImageButton btn = (ImageButton) actor;
 
-		int y = 0;
-		for (int i = 0; i < recipes.size; i++) {
-			ItemStack stack = recipes.get(i).getCraftedItemStack();
-			ItemBox box = new ItemBox(stack, String.valueOf(i));
-			Cell<Table> cell = craftingTable.add((Table) box).width(60).height(60).padRight(10).padBottom(10);
-			if (i % MAX_TABLE_WIDTH == 0) {
-				cell.padLeft(10);
-			}
-			if (y == 0) {
-				cell.padTop(10);
-			}
-			if ((i + 1) % MAX_TABLE_WIDTH == 0) {
-				craftingTable.row();
-				y++;
-			}
-		}
-	}
+                    float boxX = btn.getX();
+                    float boxY = btn.getY();
+                    float boxWidth = btn.getWidth();
+                    float boxHeight = btn.getHeight();
 
-	private void updateSelectedRecipeInfo() {
-		ItemStack itemStack = selectedRecipe.getCraftedItemStack();
-		if (itemStack != null) {
-			itemNameLabel.setText(itemStack.getItem().getName());
-			String text = "";
-			for (ItemStack stack : selectedRecipe.getRequiredItems()) {
-				text += stack.getItem().getName() + "(" + inventory.getTotalCount(stack.getItem()) + "/" + stack.getStack() + ")\n";
-			}
-			itemInfoLabel.setText(text);
-		}
-	}
+                    if (xClick >= boxX && xClick <= boxX + boxWidth && yClick >= boxY && yClick <= boxY + boxHeight) { //dropped on itembox
+                        String[] split = actor.getName().split(" ");
+                        if (split[0].equals("category")) { //It's a category button so switch categories
+                            if (btn == toolCategoryBtn.getImageButton()) {
+                                populateCraftableItems(toolCategoryBtn.getCategory());
+                            } else if (btn == furnitureCategoryBtn.getImageButton()) {
+                                populateCraftableItems(furnitureCategoryBtn.getCategory());
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
 
-	private class CraftingButtonClickListener extends ClickListener {
+            for (Actor actor : craftingHolder.getChildren()) {
+                if (actor instanceof ItemBox) {
+                    ItemBox box = (ItemBox) actor;
+                    if (box != selectedInventoryBox) {
+                        float boxX = box.getX() + tableOffsetX;
+                        float boxY = box.getY() + tableOffsetY;
+                        float boxWidth = box.getWidth();
+                        float boxHeight = box.getHeight();
 
-		private Stage stage;
-		private Table craftingHolder;
-		private float tableOffsetX, tableOffsetY;
+                        if (xClick >= boxX && xClick <= boxX + boxWidth && yClick >= boxY && yClick <= boxY + boxHeight) { //dropped on itembox
+                            box.setSelected(true);
 
-		public CraftingButtonClickListener(Stage stage, Table craftingHolder, float tableOffsetX, float tableOffsetY) {
-			this.stage = stage;
-			this.craftingHolder = craftingHolder;
-			this.tableOffsetX = tableOffsetX;
-			this.tableOffsetY = tableOffsetY;
-		}
+                            if (selectedInventoryBox != null) {
+                                selectedInventoryBox.setSelected(false);
+                            }
+                            selectedInventoryBox = box;
 
-		@Override
-		public void clicked(InputEvent event, float xClick, float yClick) {
-			for (Actor actor : stage.getActors()) {
-				if (actor instanceof ImageButton) {
-					ImageButton btn = (ImageButton) actor;
+                            //selected a craftable item
+                            Array<CraftingRecipe> recipes = CraftingRecipes.getInstance().getCraftableItems(currentCategory);
+                            int index = Integer.parseInt(box.getExtra());
+                            selectedRecipe = recipes.get(index);
+                            updateSelectedRecipeInfo();
 
-					float boxX = btn.getX();
-					float boxY = btn.getY();
-					float boxWidth = btn.getWidth();
-					float boxHeight = btn.getHeight();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-					if (xClick >= boxX && xClick <= boxX + boxWidth && yClick >= boxY && yClick <= boxY + boxHeight) { //dropped on itembox
-						String[] split = actor.getName().split(" ");
-						if (split[0].equals("category")) { //It's a category button so switch categories
-							if (btn == toolCategoryBtn.getImageButton()) {
-								populateCraftableItems(toolCategoryBtn.getCategory());
-							} else if (btn == furnitureCategoryBtn.getImageButton()) {
-								populateCraftableItems(furnitureCategoryBtn.getCategory());
-							}
-							return;
-						}
-					}
-				}
-			}
+    private class CategoryButton {
 
-			for (Actor actor : craftingHolder.getChildren()) {
-				if (actor instanceof ItemBox) {
-					ItemBox box = (ItemBox) actor;
-					if (box != selectedInventoryBox) {
-						float boxX = box.getX() + tableOffsetX;
-						float boxY = box.getY() + tableOffsetY;
-						float boxWidth = box.getWidth();
-						float boxHeight = box.getHeight();
+        private ImageButton cachedButton;
+        private ItemCategory category;
+        private Texture upTexture, downTexture;
+        private float x, y;
 
-						if (xClick >= boxX && xClick <= boxX + boxWidth && yClick >= boxY && yClick <= boxY + boxHeight) { //dropped on itembox
-							box.setSelected(true);
+        public CategoryButton(ItemCategory category, Texture upTexture, Texture downTexture, float x, float y) {
+            this.category = category;
+            this.upTexture = upTexture;
+            this.downTexture = downTexture;
+            this.x = x;
+            this.y = y;
+        }
 
-							if (selectedInventoryBox != null) {
-								selectedInventoryBox.setSelected(false);
-							}
-							selectedInventoryBox = box;
+        public ItemCategory getCategory() {
+            return category;
+        }
 
-							//selected a craftable item
-							Array<CraftingRecipe> recipes = CraftingRecipes.getInstance().getCraftableItems(currentCategory);
-							int index = Integer.parseInt(box.getExtra());
-							selectedRecipe = recipes.get(index);
-							updateSelectedRecipeInfo();
+        public ImageButton getImageButton() {
+            if (cachedButton == null) {
+                ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+                style.up = new TextureRegionDrawable(new TextureRegion(upTexture));
+                style.down = new TextureRegionDrawable(new TextureRegion(downTexture));
+                cachedButton = new ImageButton(style);
+                cachedButton.setBounds(x, y, upTexture.getWidth(), upTexture.getHeight());
+                cachedButton.setName("category ");
+                return cachedButton;
+            }
+            return cachedButton;
+        }
 
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private class CategoryButton {
-
-		private ImageButton cachedButton;
-		private ItemCategory category;
-		private Texture upTexture, downTexture;
-		private float x, y;
-
-		public CategoryButton(ItemCategory category, Texture upTexture, Texture downTexture, float x, float y) {
-			this.category = category;
-			this.upTexture = upTexture;
-			this.downTexture = downTexture;
-			this.x = x;
-			this.y = y;
-		}
-
-		public ItemCategory getCategory() {
-			return category;
-		}
-
-		public ImageButton getImageButton() {
-			if (cachedButton == null) {
-				ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-				style.up = new TextureRegionDrawable(new TextureRegion(upTexture));
-				style.down = new TextureRegionDrawable(new TextureRegion(downTexture));
-				cachedButton = new ImageButton(style);
-				cachedButton.setBounds(x, y, upTexture.getWidth(), upTexture.getHeight());
-				cachedButton.setName("category ");
-				return cachedButton;
-			}
-			return cachedButton;
-		}
-
-	}
+    }
 
 }
 

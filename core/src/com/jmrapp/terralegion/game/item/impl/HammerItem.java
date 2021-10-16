@@ -10,16 +10,17 @@ import com.jmrapp.terralegion.game.world.block.BlockType;
  */
 public class HammerItem extends ToolItem {
 
-	public HammerItem(ItemType type, String name, Drawable icon, int maxItemStack, float damage, float power, float reach, float useDelay) {
-		super(type, name, icon, maxItemStack, damage, power, reach, useDelay);
-	}
+    public HammerItem(ItemType type, String name, Drawable icon, int maxItemStack, float damage, float power,
+                      float reach, float useDelay) {
+        super(type, name, icon, maxItemStack, damage, power, reach, useDelay);
+    }
 
-	public boolean canDamageBlock(BlockType type) {
-		return false;
-	}
+    public boolean canDamageBlock(BlockType type) {
+        return false;
+    }
 
-	@Override
-	public boolean onUse(World world, float touchX, float touchY) {
-		return false;
-	}
+    @Override
+    public boolean onUse(World world, float touchX, float touchY) {
+        return false;
+    }
 }

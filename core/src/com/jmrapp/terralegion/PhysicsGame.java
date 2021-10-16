@@ -23,6 +23,11 @@ public class PhysicsGame implements ApplicationListener {
     protected boolean paused;
     protected long lastBack;
 
+    public static void instantiateSettings() {
+        Settings.addSetting("width", 800);
+        Settings.addSetting("height", 480);
+    }
+
     @Override
     public void create() {
         sb = new SpriteBatch(150);
@@ -44,7 +49,8 @@ public class PhysicsGame implements ApplicationListener {
         ResourceManager.getInstance().loadTexture("rightBtn", "res/ui/rightBtn.png");
         ResourceManager.getInstance().loadTexture("upBtn", "res/ui/upBtn.png");
         ResourceManager.getInstance().loadTexture("bunny", "res/entities/bunny.png");
-        ResourceManager.getInstance().loadTexture("hedgehog", "res/entities/bunny.png"); //Jordan didn't push hedgehog, waiting.
+        ResourceManager.getInstance().loadTexture("hedgehog", "res/entities/bunny.png"); //Jordan didn't push
+        // hedgehog, waiting.
 
         //UI
         ResourceManager.getInstance().loadTexture("inventoryBox", "res/ui/inventoryBox.png");
@@ -147,8 +153,9 @@ public class PhysicsGame implements ApplicationListener {
         if (!paused) {
             Timer.getInstance().update();
 
-            if (ScreenManager.getCurrent() != null)
+            if (ScreenManager.getCurrent() != null) {
                 ScreenManager.getCurrent().update();
+            }
         }
         if (Gdx.input.isKeyPressed(Input.Keys.BACK) && System.currentTimeMillis() - lastBack > 300) {
             if (ScreenManager.getCurrent() != null) {
@@ -167,22 +174,25 @@ public class PhysicsGame implements ApplicationListener {
 
     @Override
     public void resize(int width, int height) {
-        if (ScreenManager.getCurrent() != null)
+        if (ScreenManager.getCurrent() != null) {
             ScreenManager.getCurrent().resize(width, height);
+        }
     }
 
     @Override
     public void pause() {
         paused = true;
-        if (ScreenManager.getCurrent() != null)
+        if (ScreenManager.getCurrent() != null) {
             ScreenManager.getCurrent().pause();
+        }
     }
 
     @Override
     public void resume() {
         paused = false;
-        if (ScreenManager.getCurrent() != null)
+        if (ScreenManager.getCurrent() != null) {
             ScreenManager.getCurrent().resume();
+        }
     }
 
     @Override
@@ -190,11 +200,6 @@ public class PhysicsGame implements ApplicationListener {
         sb.dispose();
         ResourceManager.getInstance().dispose();
         ThreadManager.getInstance().shutdown();
-    }
-
-    public static void instantiateSettings() {
-        Settings.addSetting("width", 800);
-        Settings.addSetting("height", 480);
     }
 
 }

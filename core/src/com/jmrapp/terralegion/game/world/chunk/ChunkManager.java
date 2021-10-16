@@ -19,25 +19,20 @@ import java.util.Random;
 
 public class ChunkManager {
 
-    public static int totalChunksLoaded = 0;
-
-    /**
-     * The standard size of the tiles
-     */
-    public static int TILE_SIZE = 32;
-
-    /**
-     * The world dimensions for the chunks
-     */
-    public static int CHUNKS_X = 36, CHUNKS_Y = 18;
-
     /**
      * Used to generate hills within a chunk
      */
     private static final OreGenerator oreGenerator = new OreGenerator();
-
     private static final HillGenerator hillGenerator = new HillGenerator(oreGenerator);
-
+    public static int totalChunksLoaded = 0;
+    /**
+     * The standard size of the tiles
+     */
+    public static int TILE_SIZE = 32;
+    /**
+     * The world dimensions for the chunks
+     */
+    public static int CHUNKS_X = 36, CHUNKS_Y = 18;
     /**
      * The loaded chunks in the world
      */
@@ -79,6 +74,43 @@ public class ChunkManager {
         this.world = world;
     }
 
+    /**
+     * Determines whether a specific point is being viewed on the screen. It also accounts for a few of the blocks
+     * outside of the viewport.
+     *
+     * @param x       The tile X (in pixels)
+     * @param y       The tile Y (in pixels)
+     * @param camera  The camera
+     * @param centerX The x position
+     * @param centerY The y position
+     * @return whether the location is viewed on the screen
+     */
+    public static boolean isOnScreen(float x, float y, OrthoCamera camera, float centerX, float centerY) {
+        float startX = centerX - (Settings.getWidth() / 2);
+        float startY = centerY - (Settings.getHeight() / 2);
+        return x >= startX - (TILE_SIZE * 2) && y >= startY - (TILE_SIZE * 2) && x <= startX + Settings.getWidth() + TILE_SIZE && y <= startY + Settings.getHeight() + TILE_SIZE;
+    }
+
+    /**
+     * Gets the tile position given a vector position
+     *
+     * @param x The x position in pixels
+     * @param y The y position in pixels
+     * @return The tile position
+     */
+
+    public static boolean isWithinWorld(int x, int y) {
+        return x >= 0 && y >= 0 && x < (CHUNKS_X * Chunk.CHUNK_SIZE) && y < (CHUNKS_Y * Chunk.CHUNK_SIZE);
+    }
+
+    public static int pixelToTilePosition(float p) {
+        return (int) p / TILE_SIZE;
+    }
+
+    public static float tileToPixelPosition(int t) {
+        return t * TILE_SIZE;
+    }
+
     public void loadSeed(long seed) {
         noise.genGrad(seed);
     }
@@ -95,7 +127,7 @@ public class ChunkManager {
 
     private void generateChunk(final Chunk chunk) {
         // <TODO When running in a thread, for some reason the lighting doesn't generate correctly. Must be some type
-		//  of race condition>
+        //  of race condition>
 		/*Runnable runnable = new Runnable() {
 			@Override
 			public void run() {*/
@@ -148,9 +180,9 @@ public class ChunkManager {
      * @return The chunk or null if it's outside of the bounds
      */
     private Chunk getChunk(int x, int y) {
-		if (x < CHUNKS_X && x >= 0 && y >= 0 && y < CHUNKS_Y) {
-			return chunks[x][y];
-		}
+        if (x < CHUNKS_X && x >= 0 && y >= 0 && y < CHUNKS_Y) {
+            return chunks[x][y];
+        }
         return null;
     }
 
@@ -197,10 +229,10 @@ public class ChunkManager {
         int topOverlap = 0;
         int bottomOverlap = 0;
 
-		if (loadedChunks[1][1] != null) {
-			loadedChunks[1][1].render(camera, sb, centerX, centerY, chunkPosYMin, chunkPosYMax,
-					Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
-		}
+        if (loadedChunks[1][1] != null) {
+            loadedChunks[1][1].render(camera, sb, centerX, centerY, chunkPosYMin, chunkPosYMax,
+                    Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
+        }
 
         if (loadedChunks[1][1] != null) {
             chunkPosXMin = tx - (chunkX * Chunk.CHUNK_SIZE) - ((Settings.getWidth() / 2) / TILE_SIZE) - 1;
@@ -227,27 +259,27 @@ public class ChunkManager {
 
             loadedChunks[1][1].update(camera, centerX, centerY);
             loadedChunks[1][1].render(camera, sb, centerX, centerY, chunkPosYMin, chunkPosYMax, chunkPosXMin,
-					chunkPosXMax);
+                    chunkPosXMax);
         }
         if (leftOverlap > 0) {
             if (loadedChunks[0][1] != null) {//Left
                 loadedChunks[0][1].update(camera, centerX, centerY);
                 loadedChunks[0][1].render(camera, sb, centerX, centerY, chunkPosYMin, chunkPosYMax,
-						Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
+                        Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
             }
             if (bottomOverlap > 0) { //bottom left
                 if (loadedChunks[0][0] != null) {
                     loadedChunks[0][0].update(camera, centerX, centerY);
                     loadedChunks[0][0].render(camera, sb, centerX, centerY, Chunk.CHUNK_SIZE - bottomOverlap,
-							Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE); //Render bottom left
-					// at the top right corner only
+                            Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE); //Render bottom left
+                    // at the top right corner only
                 }
             }
             if (topOverlap > 0) { //top left
                 if (loadedChunks[0][2] != null) {
                     loadedChunks[0][2].update(camera, centerX, centerY);
                     loadedChunks[0][2].render(camera, sb, centerX, centerY, 0, topOverlap,
-							Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
+                            Chunk.CHUNK_SIZE - leftOverlap, Chunk.CHUNK_SIZE);
                 }
             }
         }
@@ -260,14 +292,14 @@ public class ChunkManager {
                 if (loadedChunks[2][0] != null) {
                     loadedChunks[2][0].update(camera, centerX, centerY);
                     loadedChunks[2][0].render(camera, sb, centerX, centerY, Chunk.CHUNK_SIZE - bottomOverlap,
-							Chunk.CHUNK_SIZE, 0, rightOverlap); //Render bottom right at the top left corner only
+                            Chunk.CHUNK_SIZE, 0, rightOverlap); //Render bottom right at the top left corner only
                 }
             }
             if (topOverlap > 0) { //top right
                 if (loadedChunks[2][2] != null) {
                     loadedChunks[2][2].update(camera, centerX, centerY);
                     loadedChunks[2][2].render(camera, sb, centerX, centerY, 0, topOverlap, 0, rightOverlap); //Render
-					// the top right chunk at the bottom left
+                    // the top right chunk at the bottom left
                 }
             }
         }
@@ -281,7 +313,7 @@ public class ChunkManager {
             if (loadedChunks[1][0] != null) {
                 loadedChunks[1][0].update(camera, centerX, centerY);
                 loadedChunks[1][0].render(camera, sb, centerX, centerY, Chunk.CHUNK_SIZE - bottomOverlap,
-						Chunk.CHUNK_SIZE, chunkPosXMin, chunkPosXMax);
+                        Chunk.CHUNK_SIZE, chunkPosXMin, chunkPosXMax);
             }
         }
     }
@@ -301,27 +333,10 @@ public class ChunkManager {
             if (chunk.getBlock(chunkTileX, chunkTileY) != BlockType.AIR) {
                 BlockProperties properties = chunk.getBlockProperties(chunkTileX, chunkTileY);
                 return BlockManager.getBlock(chunk.getBlock(chunkTileX, chunkTileY)).onDamage(this, chunk, chunkTileX
-						, chunkTileY, properties, toolPower);
+                        , chunkTileY, properties, toolPower);
             }
         }
         return false;
-    }
-
-    /**
-     * Determines whether a specific point is being viewed on the screen. It also accounts for a few of the blocks
-     * outside of the viewport.
-     *
-     * @param x       The tile X (in pixels)
-     * @param y       The tile Y (in pixels)
-     * @param camera  The camera
-     * @param centerX The x position
-     * @param centerY The y position
-     * @return whether the location is viewed on the screen
-     */
-    public static boolean isOnScreen(float x, float y, OrthoCamera camera, float centerX, float centerY) {
-        float startX = centerX - (Settings.getWidth() / 2);
-        float startY = centerY - (Settings.getHeight() / 2);
-        return x >= startX - (TILE_SIZE * 2) && y >= startY - (TILE_SIZE * 2) && x <= startX + Settings.getWidth() + TILE_SIZE && y <= startY + Settings.getHeight() + TILE_SIZE;
     }
 
     /**
@@ -450,7 +465,7 @@ public class ChunkManager {
         }
 
         if (origin.dst(position) > maxReach) { //If we're too far from the origin then return air location if we
-			// found it
+            // found it
             return farthestAirFound;
         }
 
@@ -463,19 +478,23 @@ public class ChunkManager {
 
         BlockType type = getBlockFromTilePos(tx, ty);
         if (type == BlockType.AIR) { // we found air!
-			if (farthestAirFound == null) {
-				farthestAirFound = Vector2Factory.instance.getVector2(tx, ty); //Set the air block and keep searching
-			}
-			// for farther air blocks
-			else {
-				farthestAirFound.set(tx, ty);
-			}
+            if (farthestAirFound == null) {
+                farthestAirFound = Vector2Factory.instance.getVector2(tx, ty); //Set the air block and keep searching
+            }
+            // for farther air blocks
+            else {
+                farthestAirFound.set(tx, ty);
+            }
             return findFarthestAirBlock(position, direction, origin, maxReach, xCount, yCount, farthestAirFound);
-			//Keep searching
+            //Keep searching
         } else {
             return farthestAirFound;
         }
     }
+
+	/*public static Vector2 getTilePosition(float x, float y) {
+		return new Vector2(x / TILE_SIZE, y / TILE_SIZE);//so just here?, most likely yeah.
+	}*/
 
     public double getLightValueFromPos(float x, float y) {
         int tx = pixelToTilePosition(x);
@@ -494,30 +513,6 @@ public class ChunkManager {
             return chunk.getLightValue(chunkX, chunkY);
         }
         return 1; //Sun light value
-    }
-
-    /**
-     * Gets the tile position given a vector position
-     *
-     * @param x The x position in pixels
-     * @param y The y position in pixels
-     * @return The tile position
-     */
-
-    public static boolean isWithinWorld(int x, int y) {
-        return x >= 0 && y >= 0 && x < (CHUNKS_X * Chunk.CHUNK_SIZE) && y < (CHUNKS_Y * Chunk.CHUNK_SIZE);
-    }
-
-    public static int pixelToTilePosition(float p) {
-        return (int) p / TILE_SIZE;
-    }
-
-	/*public static Vector2 getTilePosition(float x, float y) {
-		return new Vector2(x / TILE_SIZE, y / TILE_SIZE);//so just here?, most likely yeah.
-	}*/
-
-    public static float tileToPixelPosition(int t) {
-        return t * TILE_SIZE;
     }
 
 	/*public static Vector2 tileToPixelPosition(int x, int y) {

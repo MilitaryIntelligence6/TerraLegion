@@ -8,23 +8,23 @@ import java.util.concurrent.Executors;
  */
 public class ThreadManager {
 
-	private static final ThreadManager instance = new ThreadManager();
-	private final ExecutorService executorService;
+    private static final ThreadManager instance = new ThreadManager();
+    private final ExecutorService executorService;
 
-	private ThreadManager() {
-		executorService = Executors.newFixedThreadPool(4);
-	}
+    private ThreadManager() {
+        executorService = Executors.newFixedThreadPool(4);
+    }
 
-	public void runThread(Runnable runnable) {
-		executorService.execute(runnable);
-	}
+    public static ThreadManager getInstance() {
+        return instance;
+    }
 
-	public void shutdown() {
-		executorService.shutdown();
-	}
+    public void runThread(Runnable runnable) {
+        executorService.execute(runnable);
+    }
 
-	public static ThreadManager getInstance() {
-		return instance;
-	}
+    public void shutdown() {
+        executorService.shutdown();
+    }
 
 }

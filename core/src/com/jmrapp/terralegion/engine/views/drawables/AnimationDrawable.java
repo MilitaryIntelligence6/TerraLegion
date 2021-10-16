@@ -1,4 +1,3 @@
-
 package com.jmrapp.terralegion.engine.views.drawables;
 
 import com.badlogic.gdx.Gdx;
@@ -10,32 +9,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 
 /**
- * 
  * @author Simon Gwerder
- *
  */
 public class AnimationDrawable implements Drawable {
 
     private ObjectMap<Type, Animation> animations = new ObjectMap<Type, Animation>();
     private Animation animation;
-
-    public enum Type {
-        WALK_UP, WALK_RIGHT, WALK_DOWN, WALK_LEFT
-    }
-
     private float stateTime;
-
-    public void reset() {
-        stateTime = 0f;
-    }
-
-    public int getKeyFrameIndex() {
-        return animation.getKeyFrameIndex(stateTime);
-    }
-
-    public void setAnimationByType(Type type) {
-        animation = animations.get(type);
-    }
 
     public AnimationDrawable(SpriteSheet sheet) {
         final int startX = 0;
@@ -57,7 +37,7 @@ public class AnimationDrawable implements Drawable {
         animations.put(Type.WALK_LEFT, new Animation(1f / (frames * 1.5f), tempSpritesLeft));
         animations.put(Type.WALK_RIGHT, new Animation(1f / (frames * 1.5f), tempSpritesRight));
 
-        for(Animation animation : animations.values()) {
+        for (Animation animation : animations.values()) {
             animation.setPlayMode(Animation.PlayMode.LOOP);
         }
 
@@ -68,7 +48,8 @@ public class AnimationDrawable implements Drawable {
         return AnimationDrawable.grabSprites(sheet, startX, y, length, false);
     }
 
-    private static Array<TextureRegion> grabSprites(SpriteSheet sheet, int startX, int y, int length, boolean mirrored) {
+    private static Array<TextureRegion> grabSprites(SpriteSheet sheet, int startX, int y, int length,
+                                                    boolean mirrored) {
         Array<TextureRegion> sprites = new Array<TextureRegion>();
         length += startX;
         for (int x = startX; x < length; x++) {
@@ -88,6 +69,18 @@ public class AnimationDrawable implements Drawable {
         middleReversed.removeIndex(middleReversed.size - 1);
         middleReversed.reverse();
         frames.addAll(middleReversed);
+    }
+
+    public void reset() {
+        stateTime = 0f;
+    }
+
+    public int getKeyFrameIndex() {
+        return animation.getKeyFrameIndex(stateTime);
+    }
+
+    public void setAnimationByType(Type type) {
+        animation = animations.get(type);
     }
 
     @Override
@@ -117,17 +110,23 @@ public class AnimationDrawable implements Drawable {
 
     @Override
     public float getWidth() {
-        return animation.getKeyFrame(stateTime).getRegionWidth() - 2; // TODO fix size of player_animated.png to fit within 1 unit
+        return animation.getKeyFrame(stateTime).getRegionWidth() - 2; // TODO fix size of player_animated.png to fit
+        // within 1 unit
     }
 
     @Override
     public float getHeight() {
-        return animation.getKeyFrame(stateTime).getRegionHeight() - 4;  // TODO fix size of player_animated.png to fit within 1 unit
+        return animation.getKeyFrame(stateTime).getRegionHeight() - 4;  // TODO fix size of player_animated.png to
+        // fit within 1 unit
     }
 
     @Override
     public Object getRaw() {
         return animation;
+    }
+
+    public enum Type {
+        WALK_UP, WALK_RIGHT, WALK_DOWN, WALK_LEFT
     }
 
 }

@@ -20,13 +20,13 @@ public class TextElement {
         font.draw(sb, textLayout, x, y);
     }
 
+    public String getText() {
+        return text;
+    }
+
     public void setText(String text) {
         this.text = text;
         textLayout.setText(font, text);
-    }
-
-    public String getText() {
-        return text;
     }
 
     public float getWidth() {

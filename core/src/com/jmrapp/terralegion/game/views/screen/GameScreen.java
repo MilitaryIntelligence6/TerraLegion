@@ -15,9 +15,9 @@ import com.jmrapp.terralegion.game.world.World;
 
 public class GameScreen implements Screen {
 
+    private static World world;
     private OrthoCamera camera;
     private ShaderProgram program;
-    private static World world;
     private GameHud gameHud;
 
     public GameScreen(String worldFileName) {
@@ -28,6 +28,10 @@ public class GameScreen implements Screen {
         world = new World(worldFileName, seed);
     }
 
+    public static World getCurrentWorld() { //Terribly ugly, but short term needed for AI behavior testing
+        return world;
+    }
+
     @Override
     public void create() {
         //Load UI
@@ -35,7 +39,7 @@ public class GameScreen implements Screen {
 
         ShaderProgram.pedantic = false;
         program = new ShaderProgram(Gdx.files.internal("res/shaders/sepia.vsh"), Gdx.files.internal("res/shaders" +
-				"/sepia.fsh"));
+                "/sepia.fsh"));
 
         if (!program.isCompiled()) {
             System.out.println(program.getLog());
@@ -102,10 +106,6 @@ public class GameScreen implements Screen {
     public void resume() {
         gameHud.resume();
         Timer.startGameTime();
-    }
-
-    public static World getCurrentWorld() { //Terribly ugly, but short term needed for AI behavior testing
-        return world;
     }
 
 }

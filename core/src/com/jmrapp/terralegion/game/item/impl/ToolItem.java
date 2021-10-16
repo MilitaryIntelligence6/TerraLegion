@@ -1,7 +1,6 @@
 package com.jmrapp.terralegion.game.item.impl;
 
 import com.jmrapp.terralegion.engine.views.drawables.Drawable;
-import com.jmrapp.terralegion.game.item.Item;
 import com.jmrapp.terralegion.game.item.ItemCategory;
 import com.jmrapp.terralegion.game.item.ItemType;
 import com.jmrapp.terralegion.game.world.block.BlockType;
@@ -11,38 +10,44 @@ import com.jmrapp.terralegion.game.world.block.BlockType;
  */
 public abstract class ToolItem extends UsableItem {
 
-	/** The amount of damage dealt by the item. */
-	protected float damage;
+    /**
+     * The amount of damage dealt by the item.
+     */
+    protected float damage;
 
-	/** The power the tool has when being used. */
-	protected float power;
+    /**
+     * The power the tool has when being used.
+     */
+    protected float power;
 
-	protected ItemType type;
+    protected ItemType type;
 
-	public ToolItem(ItemType type, String name, Drawable icon, int maxItemStack, float damage, float power, float reach, float useDelay) {
-		super(type.getId(), ItemCategory.TOOL, name, icon, maxItemStack, useDelay, reach);
-		this.damage = damage;
-		this.power = power;
-		this.type = type;
-		this.useDelay = useDelay;
-	}
+    public ToolItem(ItemType type, String name, Drawable icon, int maxItemStack, float damage, float power, float reach,
+                    float useDelay) {
+        super(type.getId(), ItemCategory.TOOL, name, icon, maxItemStack, useDelay, reach);
+        this.damage = damage;
+        this.power = power;
+        this.type = type;
+        this.useDelay = useDelay;
+    }
 
-	public abstract boolean canDamageBlock(BlockType type);
+    public abstract boolean canDamageBlock(BlockType type);
 
-	public float getDamage() {
-		return damage;
-	}
+    public float getDamage() {
+        return damage;
+    }
 
-	public float getPower() {
-		return power;
-	}
+    public float getPower() {
+        return power;
+    }
 
-	public ItemType getItemType() {
-		return type;
-	}
+    public ItemType getItemType() {
+        return type;
+    }
 
-	public String toString() {
-		return damage + " melee damage\n" + useDelay + " speed\n" + (power * 100) + "% power";
-	}
+    @Override
+    public String toString() {
+        return damage + " melee damage\n" + useDelay + " speed\n" + (power * 100) + "% power";
+    }
 
 }

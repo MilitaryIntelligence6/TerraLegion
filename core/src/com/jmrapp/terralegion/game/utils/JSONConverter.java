@@ -5,7 +5,6 @@ import com.jmrapp.terralegion.game.item.Item;
 import com.jmrapp.terralegion.game.item.ItemManager;
 import com.jmrapp.terralegion.game.item.ItemStack;
 import com.jmrapp.terralegion.game.item.inventory.Inventory;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -21,10 +20,10 @@ public class JSONConverter {
         jsonInventory.put("inventorySize", inventorySize);
 
         JSONArray itemList = new JSONArray();
-        for(int x = 0; x < inventory.getWidth(); x++) {
-            for(int y = 0; y < inventory.getHeight(); y++) {
+        for (int x = 0; x < inventory.getWidth(); x++) {
+            for (int y = 0; y < inventory.getHeight(); y++) {
                 ItemStack itemStack = inventory.getItemStack(x, y);
-                if(itemStack != null) {
+                if (itemStack != null) {
                     JSONObject itemStackInfo = new JSONObject();
                     itemStackInfo.put("x", x);
                     itemStackInfo.put("y", y);

@@ -25,13 +25,16 @@ public class InventoryBox extends Button {
     }
 
     public void render(SpriteBatch sb) {
-        if (selected)
+        if (selected) {
             sb.draw(selectedBg, x, y);
-        else
+        } else {
             sb.draw(bg, x, y);
+        }
 
         if (itemStack != null) {
-            itemStack.getItem().getIcon().render(sb, x + (bg.getWidth() / 2) - (itemStack.getItem().getIcon().getWidth() / 2), y + (bg.getHeight() / 2) - (itemStack.getItem().getIcon().getHeight() / 2));
+            itemStack.getItem().getIcon().render(sb,
+                    x + (bg.getWidth() / 2) - (itemStack.getItem().getIcon().getWidth() / 2),
+                    y + (bg.getHeight() / 2) - (itemStack.getItem().getIcon().getHeight() / 2));
             font.draw(sb, String.valueOf(itemStack.getStack()), x + 5, y + bg.getHeight() - 10);
         }
 

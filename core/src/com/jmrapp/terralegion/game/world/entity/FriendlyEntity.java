@@ -8,8 +8,9 @@ import com.jmrapp.terralegion.engine.world.entity.BodyType;
  */
 public abstract class FriendlyEntity extends LivingEntity {
 
-	public FriendlyEntity(Drawable drawable, float x, float y, BodyType bodyType, float speed, float maxHealth, float health, float jumpVelocity) {
-		super(drawable, x, y, bodyType, speed, maxHealth, health, jumpVelocity);
-	}
+    public FriendlyEntity(Drawable drawable, float x, float y, BodyType bodyType, float speed, float maxHealth,
+                          float health, float jumpVelocity) {
+        super(drawable, x, y, bodyType, speed, maxHealth, health, jumpVelocity);
+    }
 
 }

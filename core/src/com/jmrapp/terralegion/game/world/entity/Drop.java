@@ -1,13 +1,13 @@
 package com.jmrapp.terralegion.game.world.entity;
 
+import com.jmrapp.terralegion.engine.utils.Timer;
+import com.jmrapp.terralegion.engine.views.drawables.Drawable;
 import com.jmrapp.terralegion.engine.world.collision.CollisionInfo;
 import com.jmrapp.terralegion.engine.world.collision.CollisionSide;
-import com.jmrapp.terralegion.engine.views.drawables.Drawable;
 import com.jmrapp.terralegion.engine.world.entity.BodyType;
 import com.jmrapp.terralegion.engine.world.entity.WorldBody;
-import com.jmrapp.terralegion.engine.utils.Timer;
-import com.jmrapp.terralegion.game.world.chunk.Chunk;
 import com.jmrapp.terralegion.game.item.Item;
+import com.jmrapp.terralegion.game.world.chunk.Chunk;
 
 import java.util.HashMap;
 
@@ -16,9 +16,8 @@ import java.util.HashMap;
  */
 public class Drop extends TexturedEntity {
 
-    private float DEATH_TIME = 60;
     private static HashMap<Integer, Drop> dropQueue = new HashMap<Integer, Drop>();
-
+    private float DEATH_TIME = 60;
     private Item item;
     private boolean onGround;
     private float startTime, pickupWaitTime;
@@ -118,7 +117,8 @@ public class Drop extends TexturedEntity {
             drop.set(stackCount, x, y);
             return drop;
         }
-        if (drawable != item.getIcon()) { //If there is a custom drop drawable set which is not the same as the icon drawable
+        if (drawable != item.getIcon()) { //If there is a custom drop drawable set which is not the same as the icon
+            // drawable
             return new Drop(item, drawable, stackCount, x, y);
         } else {
             return new Drop(item, stackCount, x, y);

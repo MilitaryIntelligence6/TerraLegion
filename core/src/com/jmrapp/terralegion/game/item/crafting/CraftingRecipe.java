@@ -8,39 +8,42 @@ import com.jmrapp.terralegion.game.item.inventory.Inventory;
  */
 public class CraftingRecipe {
 
-	private ItemStack craftedItem;
-	private ItemStack[] requiredItems;
+    private ItemStack craftedItem;
+    private ItemStack[] requiredItems;
 
-	public CraftingRecipe(ItemStack craftedItem, ItemStack ... requiredItems) {
-		this.craftedItem = craftedItem;
-		this.requiredItems = requiredItems;
-	}
+    public CraftingRecipe(ItemStack craftedItem, ItemStack... requiredItems) {
+        this.craftedItem = craftedItem;
+        this.requiredItems = requiredItems;
+    }
 
-	public ItemStack getCraftedItemStack() {
-		return ItemStack.getItemStack(craftedItem);
-	}
+    public ItemStack getCraftedItemStack() {
+        return ItemStack.getItemStack(craftedItem);
+    }
 
-	public ItemStack[] getRequiredItems() {
-		return requiredItems;
-	}
+    public ItemStack[] getRequiredItems() {
+        return requiredItems;
+    }
 
-	public boolean canCraft(Inventory inventory) {
-		for (ItemStack itemStack : requiredItems)
-			if (inventory.getTotalCount(itemStack.getItem()) < itemStack.getStack())
-				return false;
-		return true;
-	}
-
-	/**
-	 * Removes all of the required items from the inventory. Assumes that the inventory contains all required items.
-	 * @param inventory The inventory to remove the required items from
-	 * @return The crafted ItemStack
-	 */
-	public ItemStack craft(Inventory inventory) {
+    public boolean canCraft(Inventory inventory) {
 		for (ItemStack itemStack : requiredItems) {
-			inventory.removeItemStack(ItemStack.getItemStack(itemStack));
+			if (inventory.getTotalCount(itemStack.getItem()) < itemStack.getStack()) {
+				return false;
+			}
 		}
-		return getCraftedItemStack();
-	}
+        return true;
+    }
+
+    /**
+     * Removes all of the required items from the inventory. Assumes that the inventory contains all required items.
+     *
+     * @param inventory The inventory to remove the required items from
+     * @return The crafted ItemStack
+     */
+    public ItemStack craft(Inventory inventory) {
+        for (ItemStack itemStack : requiredItems) {
+            inventory.removeItemStack(ItemStack.getItemStack(itemStack));
+        }
+        return getCraftedItemStack();
+    }
 
 }

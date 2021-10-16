@@ -10,7 +10,8 @@ import com.jmrapp.terralegion.game.world.entity.FriendlyEntity;
  */
 public class Hedgehog extends FriendlyEntity {
 
-    public Hedgehog(float x, float y){
-        super(new TexturedDrawable(ResourceManager.getInstance().getTexture("hedgehog")), x, y, BodyType.DYNAMIC, 7f, 10, 7, 3.5f);
-     }
+    public Hedgehog(float x, float y) {
+        super(new TexturedDrawable(ResourceManager.getInstance().getTexture("hedgehog")), x, y, BodyType.DYNAMIC, 7f,
+                10, 7, 3.5f);
+    }
 }
